@@ -1,10 +1,8 @@
-# external libraries
 import torch
 import torch.nn as nn
 
 import layers
 
-#biderictional attention flow
 class BiDAF(nn.Module):
     def __init__(self, word_vectors, char_vectors, hidden_size, drop_prob=0.):
         super(BiDAF, self).__init__()
@@ -34,17 +32,17 @@ class BiDAF(nn.Module):
         q_mask = torch.zeros_like(qw_idxs) != qw_idxs
         c_len, q_len = c_mask.sum(-1), q_mask.sum(-1)
 
-        c_emb = self.emb(cw_idxs, cc_idxs)         # (batch_size, c_len, hidden_size)
-        q_emb = self.emb(qw_idxs, qc_idxs)         # (batch_size, q_len, hidden_size)
+        c_emb = self.emb(cw_idxs, cc_idxs)         
+        q_emb = self.emb(qw_idxs, qc_idxs)         
 
-        c_enc = self.enc(c_emb, c_len)    # (batch_size, c_len, 2 * hidden_size)
-        q_enc = self.enc(q_emb, q_len)    # (batch_size, q_len, 2 * hidden_size)
+        c_encoding = self.enc(c_emb, c_len)    
+        q_encoding = self.enc(q_emb, q_len)    
 
-        att = self.att(c_enc, q_enc,
-                       c_mask, q_mask)    # (batch_size, c_len, 8 * hidden_size)
+        attribute = self.att(c_encoding, q_encoding,
+                       c_mask, q_mask)    
 
-        mod = self.mod(att, c_len)        # (batch_size, c_len, 2 * hidden_size)
+        module = self.mod(attribute, c_len)        
 
-        out = self.out(att, mod, c_mask)  # 2 tensors, each (batch_size, c_len)
+        output = self.out(attribute, module, c_mask)  
 
-        return out
+        return output
